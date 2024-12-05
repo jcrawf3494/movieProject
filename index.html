@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MILESTONE 4</title>
+  <link href="style.css" rel="stylesheet" type="text/css" />
+  <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/2.2.0/mustache.min.js"></script>
+
+  <script id="booktemplate2" type="text/template">
+    {{#results}}
+    <div class='book2'>
+      <img src='https://image.tmdb.org/t/p/w92{{poster_path}}' />
+      <div>
+        <h2>{{title}}</h2>
+          <div>
+            <p>{{vote_average}}</p>
+            <p>{{overview}}</p>
+            <div><a href="https://www.themoviedb.org/movie/{{id}}" id="morelink" target="_blank">more...</a></div>
+            <h2><a href="https://www.themoviedb.org/movie/{{id}}">LEARN MORE</a></h2>
+        </div>
+      </div>
+    </div>
+    {{/results}}
+  </script>
+
+  <script id="booktemplate" type="text/template">
+    {{#results}}
+    <div class='book' >
+      <a href="https://www.themoviedb.org/movie/{{id}}"><img src='https://image.tmdb.org/t/p/w92{{poster_path}}' /></a>
+      <div id="bookFont">
+        <h2>{{title}}</h2>
+        <p>Rating: {{vote_average}}</p>
+        <p>{{overview}}</p>
+        <div><a href="https://www.themoviedb.org/movie/{{id}}">LEARN MORE</a></div>
+      </div>
+    </div>
+    {{/results}}
+  </script>
+
+  <script type="text/javascript">
+   
+    const TMDB_API_KEY = '8fda0fc7f5e30c93c02f3a8be6be613f';
+    const TMDB_BASE_IMAGE_URL = 'https://image.tmdb.org/t/p/w92';
+
+    $(function(){
+      var scrollpage = 1;
+
+      $("#btnGrid").click(function (){
+        $(".book2").css("width", "500px").css("height","150px");
+        $("#searchResults").attr("data-layout","Grid");
+      });
+      
+      $("#btnList").click(function (){
+        $(".book2").css("width", "100%").css("height","150px");
+        $("#searchResults").attr("data-layout","List");
+      });
+
+      $(document).on('scroll', function() {
+        if($(document).scrollTop() + $(window).height() >= $(document).height()-1) {
+          scrollpage++;
+          loadMovies(scrollpage);
+        }
+      });
+    });
+
+    $(document).ready(function (){
+      $("#btn").click(function() {
+        $("#searchResults").html("");  
+        scrollpage = 1;     
+        loadMovies(scrollpage);
+      });
+
+ 
+      loadTrendingMovies();
+    });
+    $(document).ready(function (){
+      $("#genreBtn").click(function() {
+        $("#searchResults").html("");  
+        scrollpage = 1;     
+        loadMoviesGenre(scrollpage);
+      });
+
+ 
+      loadTrendingMovies();
+    });
+    
+
+    function loadMovies(page) {
+      var term = $("#booksearch").val();
+      
+      const options = {
+        method: 'GET',
+        headers: {
+          accept: 'application/json',
+          Authorization: `Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI4ZmRhMGZjN2Y1ZTMwYzkzYzAyZjNhOGJlNmJlNjEzZiIsIm5iZiI6MTczMjI0OTM1OS4zNTMsInN1YiI6IjY3NDAwNzBmZGFlMmU2YTkzODI1NTM0MCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.H365iF0XdkNGQcnyKjhjqBl_Zm3emhpcKtFl6lQpe_M`
+        }
+      };
+  
+      fetch(`https://api.themoviedb.org/3/search/movie?query=${term}&include_adult=false&language=en-US&page=${page}`, options)
+        .then(response => response.json())
+        .then(data => {
+          var template = $('#booktemplate2').html();
+          var rendered = Mustache.render(template, data);
+          $("#searchResults").append(rendered);  
+          
+          var currentLayout = $("#searchResults").attr("data-layout");
+          if(currentLayout === "Grid") {
+            $(".book2").css("width", "500px").css("height","150px");
+          } else if(currentLayout === "List") {
+            $(".book2").css("width", "100%").css("height","150px");
+          }
+        })
+        .catch(err => console.error('Error searching movies:', err));
+    }
+
+    function loadMoviesGenre(page) {
+    
+      var term2 = $("#genreSearch").val();
+      const dropdown = document.getElementById('exampleDropdown');
+      const selectedValue = parseInt(dropdown.value, 10);
+      
+      const options = { 
+        method: 'GET',
+        headers: {
+          accept: 'application/json',
+          Authorization: `Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI4ZmRhMGZjN2Y1ZTMwYzkzYzAyZjNhOGJlNmJlNjEzZiIsIm5iZiI6MTczMjI0OTM1OS4zNTMsInN1YiI6IjY3NDAwNzBmZGFlMmU2YTkzODI1NTM0MCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.H365iF0XdkNGQcnyKjhjqBl_Zm3emhpcKtFl6lQpe_M`
+        }
+      };
+  
+      fetch(`https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc&with_genres=${selectedValue}`, options)
+        .then(response => response.json())
+        .then(data => {
+          var template = $('#booktemplate2').html();
+          var rendered = Mustache.render(template, data);
+          $("#searchResults").empty().append(rendered);  
+          
+          var currentLayout = $("#searchResults").attr("data-layout");
+          if(currentLayout === "Grid") {
+            $(".book2").css("width", "500px").css("height","150px");
+          } else if(currentLayout === "List") {
+            $(".book2").css("width", "100%").css("height","150px");
+          }
+        })
+        .catch(err => console.error('Error searching movies:', err));
+    }
+
+    function loadTrendingMovies() {
+      const options = {
+        method: 'GET',
+        headers: {
+          accept: 'application/json',
+          Authorization: `Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI4ZmRhMGZjN2Y1ZTMwYzkzYzAyZjNhOGJlNmJlNjEzZiIsIm5iZiI6MTczMjI0OTM1OS4zNTMsInN1YiI6IjY3NDAwNzBmZGFlMmU2YTkzODI1NTM0MCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.H365iF0XdkNGQcnyKjhjqBl_Zm3emhpcKtFl6lQpe_M`
+        }
+      };
+
+      fetch('https://api.themoviedb.org/3/trending/movie/day?language=en-US', options)
+        .then(response => response.json())
+        .then(data => {
+          $("#mylibrary").html("");
+          var template = $('#booktemplate').html();
+          var rendered = Mustache.render(template, {results: data.results.slice(0, 6)});
+          $("#mylibrary").html(rendered);
+        })
+        .catch(err => console.error('Error loading trending movies:', err));
+    }
+
+
+    $(document).ready(function (){
+      $("#next").click(function() {
+        loadTrendingMovies(); 
+      });
+
+      $("#prev").click(function() {
+        loadTrendingMovies();
+      });
+    });
+  </script>
+</head>
+
+<nav>
+  <ul>
+    <li><a href="index.html">HOME</a></li>
+    <li><a href="milestone1.html">MILESTONE 1</a></li>
+    <li><a href="milestone2.html">MILESTONE 2</a></li>
+    <li><a href="milestone3.html">MILESTONE 3</a></li>
+    <li><a class="active" href="milestone4.html">MILESTONE 4</a></li>
+  </ul>
+</nav>
+
+<h1>MILESTONE 4</h1>
+
+<body id="bodybackground">
+  <div>
+    <h3 id="mybookshelf">MY LIBRARY</h3>
+  </div>
+
+  <div>
+    <button id="prev">Previous</button>
+    <button id="next">Next</button>
+    <div id="mylibrary">
+    </div>
+  </div>
+
+  <div id="searchLayout">
+    <input id="booksearch" placeholder="Search Movies">
+    <button class="searchbutton" id="btn" type="button">SEARCH</button>
+  </div>
+  <div id="changelayout"><p>CHANGE LAYOUT <a href="#" id='btnList'>LIST</a> | <a href="#" id='btnGrid'>GRID</a></p></div>
+  <form id="apiForm">
+
+    <label for="exampleDropdown">Choose an option:</label>
+    <select id="exampleDropdown" name="exampleDropdown">
+        <option value="28">Option One</option>
+        <option value="12">Option Two</option>
+        <option value="35">Option Three</option>
+    </select>
+    <button type="button" id="genreBtn">Search</button>
+</form>
+
+<div id="results"></div>
+
+
+  <div id="searchResults" data-layout="List">
+    <div id="boxitem"></div>
+  </div>
+  
+  <div>
+    <div>
+      <h3>Favorites<h3>
+    </div>
+  </div>
+</body>
+
+<footer>
+  <a>FALL SEMESTER 2024</a>
+</footer>
+</html>
