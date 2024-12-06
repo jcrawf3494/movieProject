@@ -72,6 +72,13 @@ ul {
   
   body{
     justify-content: center;
+    margin-left: 12em;
+    margin-right: 12em;
+    overflow-x: scroll;
+    padding: 20px;
+    box-shadow: 2px 2px 6px 0px  rgba(0,0,0,0.3);
+    
+    
   
   }
   .banner {
@@ -254,7 +261,7 @@ ul {
   
   #mybookshelf{
     text-align: center;
-    justify-content: center; /* Center items horizontally */
+    justify-content: center; 
     }
   
   #mylibrary {
@@ -263,10 +270,12 @@ ul {
     display: flex;
     align-items: stretch;
     gap: 2px;
-    padding: 0 100px;
-    margin: 0 auto;
     height: 225px;
-    justify-content: center; /* Center items horizontally */
+    padding: 10px; 
+    justify-content: center;
+    overflow-y: hidden;
+    overflow-x: scroll;
+   
     
    
   }
@@ -274,7 +283,8 @@ ul {
     text-align: center;
     font-size: x-small;
     display: flex;
-    flex: 1 1 150px;
+    width: 200px;
+    height: 200px;
     margin: 5px;
     border: 1px solid #ccc;
     box-shadow: 2px 2px 6px 0px  rgba(0,0,0,0.3);
@@ -298,7 +308,7 @@ ul {
   {
     display: flex;
     flex-wrap: wrap;
-    width: 1200px;
+    width: auto;
     margin: auto;
     justify-content: center; 
   }
@@ -313,7 +323,7 @@ ul {
   
   .book2{
   
-      width: 500px;
+      width: auto;
       margin: 0.3%;
       height:250px;
       text-align: left;
@@ -330,7 +340,7 @@ ul {
     }
     .book2 h2{
       padding: 0;
-    font-family: 'Montserrat', sans-serif;
+    
       flex: 1;
     }
   
@@ -338,9 +348,18 @@ ul {
     max-width: 100%;
     height: auto;
     object-fit: contain;
+
     }
     
     .book2 p{
+      font-size: small;
+      font-family: 'Montserrat', sans-serif;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-height: 45px;
+    }
+
+    .book p{
       font-size: small;
       font-family: 'Montserrat', sans-serif;
       overflow: hidden;
@@ -352,8 +371,9 @@ ul {
       font-family: 'Montserrat', sans-serif;
       background-color: white;
     }
+    
     #morelink {
-      background-color: white;
+
       font-size: small;
       padding-left: 5px;
       font-family: 'Montserrat', sans-serif;
@@ -374,3 +394,46 @@ ul {
       .book2:hover{
         background-color: #B2B4B2;
       }
+
+nav li{
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+#favesContainer {
+  background-color: lightgray;
+  background-color: #FFC629;
+  display: flex;
+  width: auto;
+  height: 250px;
+  overflow-y: hidden;
+  overflow-x: scroll;
+  padding: 10px; 
+  box-sizing: border-box; 
+}
+
+#favesResults {
+  margin: 5px;
+  width: 215px;
+  height: 215px;
+  background-color: white;
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: center; 
+  align-items: center; 
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  box-shadow: 2px 2px 6px 0px  rgba(0,0,0,0.3);
+  border-radius: 1em;
+  font-family: 'Montserrat', sans-serif;
+  
+}
+#favesResults a{
+  margin: 5px;
+
+}
+#favesResults:hover{
+  cursor: pointer;
+  background-color: lightgray;
+}

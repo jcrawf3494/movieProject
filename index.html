@@ -20,7 +20,20 @@
             <p>{{overview}}</p>
             <div><a href="https://www.themoviedb.org/movie/{{id}}" id="morelink" target="_blank">more...</a></div>
             <h2><a href="https://www.themoviedb.org/movie/{{id}}">LEARN MORE</a></h2>
+            <button id="faveButton" value={{id}}>Add to Favorites</button>
+            
         </div>
+      </div>
+    </div>
+    {{/results}}
+  </script>
+
+  <script id="faveTemplate" type="text/template">
+    {{#results}}
+    <div id="favesResults">
+      <a href="https://www.themoviedb.org/movie/{{id}}"><img src='https://image.tmdb.org/t/p/w92{{poster_path}}' /></a>
+      <div>
+        <p>{{title}}</p>
       </div>
     </div>
     {{/results}}
@@ -34,7 +47,7 @@
         <h2>{{title}}</h2>
         <p>Rating: {{vote_average}}</p>
         <p>{{overview}}</p>
-        <div><a href="https://www.themoviedb.org/movie/{{id}}">LEARN MORE</a></div>
+        <p><a href="https://www.themoviedb.org/movie/{{id}}">LEARN MORE</a></p>
       </div>
     </div>
     {{/results}}
@@ -47,21 +60,24 @@
 
     $(function(){
       var scrollpage = 1;
+      var genreOrSearch = 1;
 
       $("#btnGrid").click(function (){
-        $(".book2").css("width", "500px").css("height","150px");
+        $(".book2").css("width", "500px").css("height","200px");
         $("#searchResults").attr("data-layout","Grid");
       });
       
       $("#btnList").click(function (){
-        $(".book2").css("width", "100%").css("height","150px");
+        $(".book2").css("width", "100%").css("height","200px");
         $("#searchResults").attr("data-layout","List");
       });
 
       $(document).on('scroll', function() {
         if($(document).scrollTop() + $(window).height() >= $(document).height()-1) {
           scrollpage++;
-          loadMovies(scrollpage);
+    
+            loadMovies(scrollpage) ;
+
         }
       });
     });
@@ -76,14 +92,15 @@
  
       loadTrendingMovies();
     });
+
+
     $(document).ready(function (){
       $("#genreBtn").click(function() {
+        $("#searchResults").empty()
         $("#searchResults").html("");  
         scrollpage = 1;     
         loadMoviesGenre(scrollpage);
       });
-
- 
       loadTrendingMovies();
     });
     
@@ -108,18 +125,17 @@
           
           var currentLayout = $("#searchResults").attr("data-layout");
           if(currentLayout === "Grid") {
-            $(".book2").css("width", "500px").css("height","150px");
+            $(".book2").css("width", "500px").css("height","200px");
           } else if(currentLayout === "List") {
-            $(".book2").css("width", "100%").css("height","150px");
+            $(".book2").css("width", "100%").css("height","200px");
           }
         })
         .catch(err => console.error('Error searching movies:', err));
     }
 
     function loadMoviesGenre(page) {
-    
-      var term2 = $("#genreSearch").val();
-      const dropdown = document.getElementById('exampleDropdown');
+
+      const dropdown = document.getElementById('genreDropdown');
       const selectedValue = parseInt(dropdown.value, 10);
       
       const options = { 
@@ -135,18 +151,44 @@
         .then(data => {
           var template = $('#booktemplate2').html();
           var rendered = Mustache.render(template, data);
-          $("#searchResults").empty().append(rendered);  
+          $("#searchResults").append(rendered);  
           
           var currentLayout = $("#searchResults").attr("data-layout");
           if(currentLayout === "Grid") {
-            $(".book2").css("width", "500px").css("height","150px");
+            $(".book2").css("width", "500px").css("height","200px");
           } else if(currentLayout === "List") {
-            $(".book2").css("width", "100%").css("height","150px");
+            $(".book2").css("width", "100%").css("height","200px");
           }
         })
         .catch(err => console.error('Error searching movies:', err));
     }
 
+    function addFavorites(movieID) {
+      const options = {
+        method: 'GET',
+        headers: {
+          accept: 'application/json',
+          Authorization: `Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI4ZmRhMGZjN2Y1ZTMwYzkzYzAyZjNhOGJlNmJlNjEzZiIsIm5iZiI6MTczMjI0OTM1OS4zNTMsInN1YiI6IjY3NDAwNzBmZGFlMmU2YTkzODI1NTM0MCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.H365iF0XdkNGQcnyKjhjqBl_Zm3emhpcKtFl6lQpe_M`
+        }
+      };
+      
+      fetch(`https://api.themoviedb.org/3/movie/${movieID}?language=en-US`, options)
+        .then(response => response.json())
+        .then(data => {
+          var template = $('#faveTemplate').html();
+          var rendered = Mustache.render(template, {results: [data]});
+          $("#favesContainer").append(rendered);  
+        })
+        .catch(err => console.error('Error adding to favorites:', err));
+    }
+    
+    $(document).ready(function (){
+      $(document).on('click', '#faveButton', function() {
+        const movieID = parseInt($(this).val());
+        addFavorites(movieID);
+      });
+    });
+    
     function loadTrendingMovies() {
       const options = {
         method: 'GET',
@@ -162,46 +204,25 @@
           $("#mylibrary").html("");
           var template = $('#booktemplate').html();
           var rendered = Mustache.render(template, {results: data.results.slice(0, 6)});
-          $("#mylibrary").html(rendered);
+          $("#mylibrary").append(rendered);
         })
         .catch(err => console.error('Error loading trending movies:', err));
     }
 
 
-    $(document).ready(function (){
-      $("#next").click(function() {
-        loadTrendingMovies(); 
-      });
 
-      $("#prev").click(function() {
-        loadTrendingMovies();
-      });
-    });
   </script>
 </head>
 
-<nav>
-  <ul>
-    <li><a href="index.html">HOME</a></li>
-    <li><a href="milestone1.html">MILESTONE 1</a></li>
-    <li><a href="milestone2.html">MILESTONE 2</a></li>
-    <li><a href="milestone3.html">MILESTONE 3</a></li>
-    <li><a class="active" href="milestone4.html">MILESTONE 4</a></li>
-  </ul>
-</nav>
-
-<h1>MILESTONE 4</h1>
 
 <body id="bodybackground">
   <div>
-    <h3 id="mybookshelf">MY LIBRARY</h3>
+    <h1 id="mybookshelf">MOVIES TERM PROJECT</h1>
   </div>
 
   <div>
-    <button id="prev">Previous</button>
-    <button id="next">Next</button>
     <div id="mylibrary">
-    </div>
+  </div>
   </div>
 
   <div id="searchLayout">
@@ -210,29 +231,33 @@
   </div>
   <div id="changelayout"><p>CHANGE LAYOUT <a href="#" id='btnList'>LIST</a> | <a href="#" id='btnGrid'>GRID</a></p></div>
   <form id="apiForm">
-
-    <label for="exampleDropdown">Choose an option:</label>
-    <select id="exampleDropdown" name="exampleDropdown">
-        <option value="28">Option One</option>
-        <option value="12">Option Two</option>
-        <option value="35">Option Three</option>
+    <label for="genreDropdown">DISCOVER BY GENRE:</label>
+    <select id="genreDropdown" name="genreDropdown">
+        <option value="28">Action</option>
+        <option value="12">Adventure</option>
+        <option value="10752">War</option>
+        <option value="53">Thriller</option>
+        <option value="99">Documentary</option>
+        <option value="14">Fantasy</option>
+        <option value="10751">Family</option>
+        <option value="9648">Mystery</option>
     </select>
     <button type="button" id="genreBtn">Search</button>
 </form>
 
+<div id="favesOverallContainer">
+  <h3>Favorites<h3>
+<div id="favesContainer">
+</div>
 <div id="results"></div>
-
-
-  <div id="searchResults" data-layout="List">
-    <div id="boxitem"></div>
-  </div>
+<div id="searchResults" data-layout="List">
+<div id="boxitem"></div>
+</div>
   
-  <div>
-    <div>
-      <h3>Favorites<h3>
-    </div>
-  </div>
 </body>
+
+
+
 
 <footer>
   <a>FALL SEMESTER 2024</a>
